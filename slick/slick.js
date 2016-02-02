@@ -18,11 +18,11 @@
 (function(factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
-        define(['jquery'], factory);
+        define(['Zepto'], factory);
     } else if (typeof exports !== 'undefined') {
-        module.exports = factory(require('jquery'));
+        module.exports = factory(require('Zepto'));
     } else {
-        factory(jQuery);
+        factory(Zepto);
     }
 
 }(function($) {
@@ -165,7 +165,6 @@
             _.selectHandler = $.proxy(_.selectHandler, _);
             _.setPosition = $.proxy(_.setPosition, _);
             _.swipeHandler = $.proxy(_.swipeHandler, _);
-            _.dragHandler = $.proxy(_.dragHandler, _);
             _.keyHandler = $.proxy(_.keyHandler, _);
 
             _.instanceUid = instanceUid++;
@@ -789,7 +788,7 @@
 
         $(window).off('resize.slick.slick-' + _.instanceUid, _.resize);
 
-        $('[draggable!=true]', _.$slideTrack).off('dragstart', _.preventDefault);
+        $('*:not([draggable])', _.$slideTrack).off('dragstart', _.preventDefault);
 
         $(window).off('load.slick.slick-' + _.instanceUid, _.setPosition);
         $(document).off('ready.slick.slick-' + _.instanceUid, _.setPosition);
@@ -1391,7 +1390,7 @@
 
         $(window).on('resize.slick.slick-' + _.instanceUid, $.proxy(_.resize, _));
 
-        $('[draggable!=true]', _.$slideTrack).on('dragstart', _.preventDefault);
+        $('*:not([draggable])', _.$slideTrack).on('dragstart', _.preventDefault);
 
         $(window).on('load.slick.slick-' + _.instanceUid, _.setPosition);
         $(document).on('ready.slick.slick-' + _.instanceUid, _.setPosition);
@@ -2522,8 +2521,7 @@
             return;
         }
 
-        _.touchObject.fingerCount = event.originalEvent && event.originalEvent.touches !== undefined ?
-            event.originalEvent.touches.length : 1;
+        _.touchObject.fingerCount = event.touches !== undefined ? event.touches.length : 1;
 
         _.touchObject.minSwipe = _.listWidth / _.options
             .touchThreshold;
@@ -2557,7 +2555,7 @@
             edgeWasHit = false,
             curLeft, swipeDirection, swipeLength, positionOffset, touches;
 
-        touches = event.originalEvent !== undefined ? event.originalEvent.touches : null;
+        touches = event.touches || null;
 
         if (!_.dragging || touches && touches.length !== 1) {
             return false;
@@ -2565,8 +2563,8 @@
 
         curLeft = _.getLeft(_.currentSlide);
 
-        _.touchObject.curX = touches !== undefined ? touches[0].pageX : event.clientX;
-        _.touchObject.curY = touches !== undefined ? touches[0].pageY : event.clientY;
+        _.touchObject.curX = !!touches  ? touches[0].pageX : event.clientX;
+        _.touchObject.curY = !!touches  ? touches[0].pageY : event.clientY;
 
         _.touchObject.swipeLength = Math.round(Math.sqrt(
             Math.pow(_.touchObject.curX - _.touchObject.startX, 2)));
@@ -2637,8 +2635,8 @@
             return false;
         }
 
-        if (event.originalEvent !== undefined && event.originalEvent.touches !== undefined) {
-            touches = event.originalEvent.touches[0];
+        if (event.touches !== undefined) {
+            touches = event.touches[0];
         }
 
         _.touchObject.startX = _.touchObject.curX = touches !== undefined ? touches.pageX : event.clientX;
